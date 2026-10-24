@@ -1,80 +1,106 @@
 <template>
     <div>
         <hark-control-centre v-if="showHarkControlCentre" class="mb-3 mb-md-6" />
+        <div class="d-flex align-center justify-end flex-wrap mb-2">
+            <span v-if="editLayout" class="caption mr-3 my-1">
+                Drag cards by their coloured bar to move them, and use the eye to hide or show them. Changes save
+                as you go.
+            </span>
+            <v-btn small :depressed="editLayout" :text="!editLayout" :color="editLayout ? 'primary' : undefined" @click="editLayout = !editLayout">
+                <v-icon small left>{{ editLayout ? mdiCheck : mdiViewDashboardEditOutline }}</v-icon>
+                {{ editLayout ? 'Done' : 'Edit layout' }}
+            </v-btn>
+        </div>
         <v-row v-if="isMobile">
             <v-col>
                 <status-panel />
-                <template v-for="component in mobileLayout">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-mobileLayout-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="mobile" :column="0" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-mobileLayout-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
         </v-row>
         <v-row v-else-if="isTablet">
             <v-col class="col-6">
                 <status-panel />
-                <template v-for="component in tabletLayout1">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-tabletLayout1-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="tablet" :column="1" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-tabletLayout1-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
             <v-col class="col-6">
-                <template v-for="component in tabletLayout2">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-tabletLayout2-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="tablet" :column="2" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-tabletLayout2-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
         </v-row>
         <v-row v-else-if="isDesktop">
             <v-col class="col-5">
                 <status-panel />
-                <template v-for="component in desktopLayout1">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-desktopLayout1-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="desktop" :column="1" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-desktopLayout1-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
             <v-col class="col-7">
-                <template v-for="component in desktopLayout2">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-desktopLayout2-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="desktop" :column="2" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-desktopLayout2-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
         </v-row>
         <v-row v-else-if="isWidescreen">
             <v-col class="col-3">
                 <status-panel />
-                <template v-for="component in widescreenLayout1">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-desktopLayout1-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="widescreen" :column="1" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-widescreenLayout1-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
             <v-col class="col-5">
-                <template v-for="component in widescreenLayout2">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-desktopLayout2-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="widescreen" :column="2" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-widescreenLayout2-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
             <v-col class="col-4">
-                <template v-for="component in widescreenLayout3">
-                    <component
-                        :is="extractPanelName(component.name)"
-                        :key="'dashboard-desktopLayout3-' + component.name"
-                        :panel-id="extractPanelId(component.name)"></component>
-                </template>
+                <hark-dashboard-column viewport="widescreen" :column="3" :edit="editLayout">
+                    <template #panel="{ panelName }">
+                        <component
+                            :is="extractPanelName(panelName)"
+                            :key="'dashboard-widescreenLayout3-' + panelName"
+                            :panel-id="extractPanelId(panelName)"></component>
+                    </template>
+                </hark-dashboard-column>
             </v-col>
         </v-row>
     </div>
@@ -102,6 +128,8 @@ import ToolheadControlPanel from '@/components/panels/ToolheadControlPanel.vue'
 import TemperaturePanel from '@/components/panels/TemperaturePanel.vue'
 import WebcamPanel from '@/components/panels/WebcamPanel.vue'
 import HarkControlCentre from '@/components/panels/HarkControlCentre.vue'
+import HarkDashboardColumn from '@/components/HarkDashboardColumn.vue'
+import { mdiCheck, mdiViewDashboardEditOutline } from '@mdi/js'
 
 @Component({
     components: {
@@ -123,9 +151,14 @@ import HarkControlCentre from '@/components/panels/HarkControlCentre.vue'
         TemperaturePanel,
         WebcamPanel,
         HarkControlCentre,
+        HarkDashboardColumn,
     },
 })
 export default class PageDashboard extends Mixins(DashboardMixin) {
+    mdiCheck = mdiCheck
+    mdiViewDashboardEditOutline = mdiViewDashboardEditOutline
+    editLayout = false
+
     get showHarkControlCentre(): boolean {
         return this.$store.state.gui.hark?.controlCentre ?? true
     }
