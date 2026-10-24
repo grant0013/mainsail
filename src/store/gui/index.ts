@@ -70,6 +70,7 @@ export const getDefaultState = (): GuiState => {
                 widescreen: [],
             },
             mobileLayout: [
+                { name: 'cfs', visible: true },
                 { name: 'webcam', visible: false },
                 { name: 'toolhead-control', visible: true },
                 { name: 'extruder-control', visible: true },
@@ -80,6 +81,7 @@ export const getDefaultState = (): GuiState => {
                 { name: 'miniconsole', visible: false },
             ],
             tabletLayout1: [
+                { name: 'cfs', visible: true },
                 { name: 'webcam', visible: true },
                 { name: 'toolhead-control', visible: true },
                 { name: 'extruder-control', visible: true },
@@ -92,6 +94,7 @@ export const getDefaultState = (): GuiState => {
                 { name: 'miniconsole', visible: true },
             ],
             desktopLayout1: [
+                { name: 'cfs', visible: true },
                 { name: 'webcam', visible: true },
                 { name: 'toolhead-control', visible: true },
                 { name: 'extruder-control', visible: true },
@@ -104,6 +107,7 @@ export const getDefaultState = (): GuiState => {
                 { name: 'miniconsole', visible: true },
             ],
             widescreenLayout1: [
+                { name: 'cfs', visible: true },
                 { name: 'toolhead-control', visible: true },
                 { name: 'extruder-control', visible: true },
                 { name: 'macros', visible: true },

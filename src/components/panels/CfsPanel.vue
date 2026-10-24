@@ -1,7 +1,7 @@
 <template>
     <div>
         <panel
-            v-if="klipperReadyForGui"
+            v-if="klipperReadyForGui && hasCfs"
             title="CFS"
             :icon="mdiPrinter3dNozzle"
             :collapsible="true"
@@ -193,6 +193,10 @@ export default class CfsPanel extends Mixins(BaseMixin) {
         ['#43A047', '#C0CA33', '#26EEEE', '#1E88E5'],
         ['#1A237E', '#8E24AA', '#EC407A', '#6D4C41'],
     ]
+
+    get hasCfs(): boolean {
+        return !!this.$store.state.printer?.hark_cfs_slots
+    }
 
     get cfs(): Record<string, any> {
         return this.$store.state.printer?.k2_cfs ?? {}
