@@ -2,6 +2,7 @@
     <v-app :style="cssVars">
         <template v-if="socketIsConnected && guiIsReady">
             <the-sidebar />
+            <hark-appearance-applier />
             <the-topbar />
             <v-main id="content" :style="mainStyle">
                 <v-container id="page-container" fluid :class="containerClasses">
@@ -44,11 +45,13 @@ import TheBedScrewsDialog from '@/components/dialogs/TheBedScrewsDialog.vue'
 import TheScrewsTiltAdjustDialog from '@/components/dialogs/TheScrewsTiltAdjustDialog.vue'
 import { setAndLoadLocale } from './plugins/i18n'
 import TheMacroPrompt from '@/components/dialogs/TheMacroPrompt.vue'
+import HarkAppearanceApplier from '@/components/HarkAppearance.vue'
 import { AppRoute } from '@/routes'
 
 @Component({
     components: {
         TheMacroPrompt,
+        HarkAppearanceApplier,
         TheTimelapseRenderingSnackbar,
         TheEditor,
         TheSelectPrinterDialog,

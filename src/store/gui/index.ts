@@ -122,6 +122,10 @@ export const getDefaultState = (): GuiState => {
                 { name: 'miniconsole', visible: true },
             ],
         },
+        hark: {
+            controlCentre: true,
+            appearance: { preset: 'default', cardStyle: 'flat', radius: 4, density: 'comfortable', fontScale: 100 },
+        },
         editor: {
             escToClose: true,
             confirmUnsavedChanges: true,

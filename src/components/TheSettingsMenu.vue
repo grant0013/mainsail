@@ -76,6 +76,7 @@ import SettingsConsoleTab from '@/components/settings/SettingsConsoleTab.vue'
 import SettingsPresetsTab from '@/components/settings/SettingsPresetsTab.vue'
 import SettingsRemotePrintersTab from '@/components/settings/SettingsRemotePrintersTab.vue'
 import SettingsUiSettingsTab from '@/components/settings/SettingsUiSettingsTab.vue'
+import SettingsAppearanceTab from '@/components/settings/SettingsAppearanceTab.vue'
 import SettingsDashboardTab from '@/components/settings/SettingsDashboardTab.vue'
 import SettingsGCodeViewerTab from '@/components/settings/SettingsGCodeViewerTab.vue'
 import SettingsEditorTab from '@/components/settings/SettingsEditorTab.vue'
@@ -110,6 +111,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
     components: {
         Panel,
         SettingsUiSettingsTab,
+        SettingsAppearanceTab,
         SettingsRemotePrintersTab,
         SettingsPresetsTab,
         SettingsConsoleTab,
@@ -146,6 +148,11 @@ export default class TheSettingsMenu extends Mixins(BaseMixin) {
                 icon: mdiPalette,
                 name: 'ui-settings',
                 title: this.$t('Settings.UiSettingsTab.UiSettings'),
+            },
+            {
+                icon: mdiPalette,
+                name: 'appearance',
+                title: 'Appearance',
             },
             {
                 icon: mdiMonitorDashboard,

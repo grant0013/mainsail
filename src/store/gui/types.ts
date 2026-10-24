@@ -8,6 +8,7 @@ import { FileStateFile, FileStateGcodefile } from '@/store/files/types'
 import { GuiNavigationState } from '@/store/gui/navigation/types'
 
 export interface GuiState {
+    hark?: { controlCentre: boolean; appearance: Record<string, any> }
     general: {
         printername: string
         language: string

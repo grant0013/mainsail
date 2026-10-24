@@ -1,5 +1,6 @@
 <template>
     <div>
+        <hark-control-centre v-if="showHarkControlCentre" class="mb-3 mb-md-6" />
         <v-row v-if="isMobile">
             <v-col>
                 <status-panel />
@@ -100,6 +101,7 @@ import StatusPanel from '@/components/panels/StatusPanel.vue'
 import ToolheadControlPanel from '@/components/panels/ToolheadControlPanel.vue'
 import TemperaturePanel from '@/components/panels/TemperaturePanel.vue'
 import WebcamPanel from '@/components/panels/WebcamPanel.vue'
+import HarkControlCentre from '@/components/panels/HarkControlCentre.vue'
 
 @Component({
     components: {
@@ -120,9 +122,14 @@ import WebcamPanel from '@/components/panels/WebcamPanel.vue'
         ToolheadControlPanel,
         TemperaturePanel,
         WebcamPanel,
+        HarkControlCentre,
     },
 })
 export default class PageDashboard extends Mixins(DashboardMixin) {
+    get showHarkControlCentre(): boolean {
+        return this.$store.state.gui.hark?.controlCentre ?? true
+    }
+
     get mobileLayout() {
         return this.$store.getters['gui/getPanels']('mobile', 0, true)
     }
