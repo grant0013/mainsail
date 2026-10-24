@@ -92,6 +92,11 @@ export const getters: GetterTree<GuiState, RootState> = {
             allPanels = allPanels.filter((name) => name !== 'afc')
         }
 
+        // remove cfs panel, if the K2 CFS slot module is not loaded in Klipper
+        if (!rootState.printer?.hark_cfs_slots) {
+            allPanels = allPanels.filter((name) => name !== 'cfs')
+        }
+
         // remove mmu panel, if no Happy Hare exists in Klipper
         if (!rootState.printer?.mmu) {
             allPanels = allPanels.filter((name) => name !== 'mmu')

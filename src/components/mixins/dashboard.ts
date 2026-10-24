@@ -71,6 +71,7 @@ export default class DashboardMixin extends BaseMixin {
                 return mdiConsoleLine
             case 'machine-settings':
                 return mdiEngine
+            case 'cfs':
             case 'extruder-control':
                 return mdiPrinter3dNozzle
             case 'spoolman':
