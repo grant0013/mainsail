@@ -1,3 +1,49 @@
+# Mainsail: Hark K2 edition
+
+**A Mainsail fork for the Creality K2 open stack
+([K2 OpenKlipper](https://github.com/grant0013/K2-OpenKlipper)), with a CFS
+multi-filament panel, a control-centre dashboard and appearance
+customisation.** Revision 1 (`v2.18.2-hark.1`) is based on Mainsail v2.18.2.
+More customisation features are planned.
+
+![Dashboard with control centre and CFS panel](docs/hark-k2/dashboard.png)
+
+## What it adds
+
+- **CFS panel:** the four CFS slots with filament, colour, nozzle temperature
+  and pressure advance, the active slot, and the box's temperature and
+  humidity. Click a slot to pick a filament from your library or Creality's
+  list, customise its settings (temperatures, PA, flow, retraction, fans) and
+  set the spool colour. It is backed by the
+  [`hark_cfs_slots`](https://github.com/grant0013/K2-OpenKlipper/blob/main/klippy/extras/hark_cfs_slots.py)
+  Klipper module, and hidden when that module is not present.
+- **Control centre:** a full-width card at the top of the dashboard with the
+  thumbnail, state, progress ring, ETA, pause/resume/cancel or home/cooldown,
+  the chamber light, and nozzle/bed/chamber/CFS tiles with heater presets.
+- **Appearance settings** (Settings → Appearance): style presets (Mainsail
+  default, Hark Tech, Glass, High contrast), accent colour, card style, corner
+  radius, density, text size, and a control-centre toggle. The default is the
+  stock Mainsail look.
+- **Movable dashboard cards:** "Edit layout" lets you drag cards between
+  columns and hide them; the layout is saved per device size.
+
+![CFS slot editor](docs/hark-k2/cfs_slot_editor.png)
+![Appearance settings](docs/hark-k2/appearance_settings.png)
+
+## Install
+
+Download `mainsail-hark-k2-v2.18.2-hark.1.zip` from the
+[release](https://github.com/grant0013/mainsail/releases/tag/v2.18.2-hark.1)
+and unpack it in place of your Mainsail web root. The CFS panel needs the K2
+OpenKlipper stack; the control centre, appearance settings and movable cards
+work on any Klipper printer.
+
+The changes are on branch `hark-cfs-panel`. Upstream Mainsail continues
+below. This is an independent fork, not affiliated with mainsail-crew; GPLv3
+like upstream.
+
+---
+
 <p align="center">
   <a>
     <img src="https://raw.githubusercontent.com/mainsail-crew/docs/master/assets/img/logo.png" alt='Mainsail logo' height="152">
