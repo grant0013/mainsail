@@ -2,7 +2,7 @@
     <div>
         <panel
             v-if="klipperReadyForGui && hasCfs"
-            title="CFS"
+            :title="external ? 'External spool' : 'CFS'"
             :icon="mdiPrinter3dNozzle"
             :collapsible="true"
             card-class="cfs-panel">
@@ -21,7 +21,7 @@
             </template>
             <v-card-text>
                 <v-row dense>
-                    <v-col v-for="item in slots" :key="item.id" cols="6" sm="3">
+                    <v-col v-for="item in slots" :key="item.id" :cols="external ? 12 : 6" :sm="external ? 6 : 3">
                         <v-card
                             outlined
                             class="cfs-slot pa-2 text-center"
@@ -31,7 +31,7 @@
                                 class="cfs-swatch mx-auto mb-2"
                                 :class="{ 'cfs-swatch--empty': !item.loaded }"
                                 :style="swatchStyle(item.loaded ? item.color : '')">
-                                {{ item.id }}
+                                {{ external ? '' : item.id }}
                             </div>
                             <div class="subtitle-2 text-truncate">{{ item.loaded ? item.name : 'Empty' }}</div>
                             <div class="caption text--secondary text-truncate">
@@ -44,7 +44,10 @@
                                 </template>
                                 <template v-else>&nbsp;</template>
                             </div>
-                            <v-chip v-if="item.active" x-small color="primary" class="mt-1">In use</v-chip>
+                            <v-chip v-if="external" x-small :color="item.sensed ? 'primary' : undefined" class="mt-1">
+                                {{ item.sensed ? 'Filament in' : 'No filament' }}
+                            </v-chip>
+                            <v-chip v-else-if="item.active" x-small color="primary" class="mt-1">In use</v-chip>
                             <v-chip
                                 v-else-if="item.sensed === false && item.loaded"
                                 x-small
@@ -55,11 +58,15 @@
                         </v-card>
                     </v-col>
                 </v-row>
-                <div class="caption text--secondary mt-2">
+                <div v-if="external" class="caption text--secondary mt-2">
+                    No CFS: the printer feeds from the rear spool holder. Click the spool to set its filament,
+                    load, unload or calibrate pressure advance.
+                </div>
+                <div v-else class="caption text--secondary mt-2">
                     <span v-if="cfs.online === false">CFS not responding &middot;</span>
                     <span v-if="cfs.buffer">Buffer {{ cfs.buffer }} &middot;</span>
                     <span v-if="cfs.firmware">Firmware {{ cfs.firmware }} &middot;</span>
-                    Click a slot to change its filament.
+                    Click a slot to change its filament, load it or calibrate it.
                 </div>
             </v-card-text>
         </panel>
@@ -69,7 +76,7 @@
             <panel
                 v-if="editingSlot"
                 :key="'slot-' + editKey"
-                :title="`CFS slot ${editingSlot.id}`"
+                :title="editingSlot.id === 'E' ? 'External spool' : `CFS slot ${editingSlot.id}`"
                 :icon="mdiPrinter3dNozzle"
                 card-class="cfs-slot-dialog"
                 :margin-bottom="false">
@@ -123,6 +130,22 @@
                         swatches-max-height="110"
                         width="100%"
                         canvas-height="90" />
+                </v-card-text>
+                <v-card-text v-if="slotActions.length" class="pt-0">
+                    <div class="caption text--secondary mb-1">Printer</div>
+                    <div class="d-flex flex-wrap" style="gap: 8px">
+                        <v-btn
+                            v-for="action in slotActions"
+                            :key="action.label"
+                            small
+                            outlined
+                            :color="action.color"
+                            :disabled="printing"
+                            @click="runAction(action)">
+                            {{ action.label }}
+                        </v-btn>
+                    </div>
+                    <div v-if="printing" class="caption text--secondary mt-1">Available when not printing.</div>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn text color="warning" @click="clearSlot">Mark empty</v-btn>
@@ -305,6 +328,60 @@ export default class CfsPanel extends Mixins(BaseMixin) {
     filamentForm: Record<string, any> = {}
     pendingFilamentName = ''
 
+    // No CFS (k2_cfs not finding one, or cfs_fitted: False): the card shows
+    // the external spool on the rear holder, slot E
+    get external(): boolean {
+        return this.cfs.fitted === false
+    }
+
+    get printing(): boolean {
+        return ['printing', 'paused'].includes(this.$store.state.printer?.print_stats?.state)
+    }
+
+    get filamentDetected(): boolean | undefined {
+        return this.$store.state.printer?.['filament_switch_sensor filament_sensor']?.filament_detected
+    }
+
+    get slotActions(): { label: string; color?: string; question: string; gcode: string }[] {
+        const slot = this.editingSlot
+        if (!slot) return []
+        const id = slot.id
+        const temp = Math.max(Number(slot.nozzle_temp) || 0, 220)
+        const calibrate = {
+            label: 'Calibrate PA',
+            color: 'primary',
+            question: `Calibrate pressure advance for ${id === 'E' ? 'the external spool' : 'slot ' + id}? ` +
+                `About 5 minutes over the purge chute, heats to ${temp}°C. A reliable result is saved.`,
+            gcode: `PA_CAL_RUN SLOT=${id} AUTO=1`,
+        }
+        if (id === 'E') {
+            if (!this.filamentDetected)
+                return [{ label: 'Load', color: 'primary', question: `Push the filament in at the back until it stops, then load? Heats to ${temp}°C.`, gcode: 'LOAD_FILAMENT' }]
+            return [
+                { label: 'Load & purge', color: 'primary', question: `Load and purge the spool? Heats to ${temp}°C.`, gcode: 'LOAD_FILAMENT' },
+                { label: 'Unload', color: 'warning', question: `Cut and unload the spool? Heats to ${temp}°C.`, gcode: 'UNLOAD_FILAMENT' },
+                calibrate,
+            ]
+        }
+        if (!slot.loaded) return []
+        if (slot.active)
+            return [
+                { label: 'Purge', color: 'primary', question: `Purge slot ${id}? Heats to ${temp}°C.`, gcode: `CFS_LOAD_SLOT SLOT=${id}` },
+                { label: 'Unload', color: 'warning', question: `Unload slot ${id}? Heats to ${temp}°C.`, gcode: 'CFS_UNLOAD_ACTIVE' },
+                calibrate,
+            ]
+        return [
+            { label: 'Load & purge', color: 'primary', question: `Load slot ${id}? Heats to ${temp}°C.`, gcode: `CFS_LOAD_SLOT SLOT=${id}` },
+            { ...calibrate, question: `Load slot ${id}, then calibrate pressure advance? About 7 minutes, heats to ${temp}°C.`, gcode: `CFS_LOAD_SLOT SLOT=${id} COOL=0\nPA_CAL_RUN SLOT=${id} AUTO=1` },
+        ]
+    }
+
+    runAction(action: { question: string; gcode: string }) {
+        if (!window.confirm(action.question)) return
+        this.slotOpen = false
+        this.sendGcode(action.gcode)
+    }
+
     get hasCfs(): boolean {
         return !!this.$store.state.printer?.hark_cfs_slots
     }
@@ -342,6 +419,8 @@ export default class CfsPanel extends Mixins(BaseMixin) {
 
     get slots(): CfsSlot[] {
         const records = this.store.slots ?? {}
+        if (this.external)
+            return [{ ...records['E'], id: 'E', active: false, sensed: this.filamentDetected }]
         const sensed: boolean[] | undefined = this.cfs.slots_loaded
 
         return SLOT_IDS.map((id, index) => ({
