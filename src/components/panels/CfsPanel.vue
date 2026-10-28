@@ -406,8 +406,8 @@ export default class CfsPanel extends Mixins(BaseMixin) {
             label: 'Calibrate PA',
             color: 'primary',
             question: `Calibrate pressure advance for ${id === 'E' ? 'the external spool' : 'slot ' + id}? ` +
-                `About 5 minutes over the purge chute, heats to ${temp}°C. A reliable result is saved.`,
-            gcode: `PA_CAL_RUN SLOT=${id} AUTO=1`,
+                `About 3 minutes with the nozzle still over the purge chute, heats to ${temp}°C. A reliable result is saved.`,
+            gcode: `PA_CAL_STATIC SLOT=${id} SAVE=1`,
         }
         if (id === 'E') {
             if (!this.filamentDetected)
@@ -427,7 +427,7 @@ export default class CfsPanel extends Mixins(BaseMixin) {
             ]
         return [
             { label: 'Load & purge', color: 'primary', question: `Load slot ${id}? Heats to ${temp}°C.`, gcode: `CFS_LOAD_SLOT SLOT=${id}` },
-            { ...calibrate, question: `Load slot ${id}, then calibrate pressure advance? About 7 minutes, heats to ${temp}°C.`, gcode: `CFS_LOAD_SLOT SLOT=${id} COOL=0\nPA_CAL_RUN SLOT=${id} AUTO=1` },
+            { ...calibrate, question: `Load slot ${id}, then calibrate pressure advance? About 5 minutes, heats to ${temp}°C.`, gcode: this.$store.state.printer?.['gcode_macro _PA_AUTO']?.on_load ? `CFS_LOAD_SLOT SLOT=${id}` : `CFS_LOAD_SLOT SLOT=${id} COOL=0\nPA_CAL_STATIC SLOT=${id} SAVE=1` },
         ]
     }
 
