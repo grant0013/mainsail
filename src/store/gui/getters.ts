@@ -93,7 +93,8 @@ export const getters: GetterTree<GuiState, RootState> = {
         }
 
         // remove cfs panel, if the K2 CFS slot module is not loaded in Klipper
-        if (!rootState.printer?.hark_cfs_slots) {
+        // or the printer has no CFS (k2_cfs cfs_fitted: False)
+        if (!rootState.printer?.hark_cfs_slots || rootState.printer?.k2_cfs?.fitted === false) {
             allPanels = allPanels.filter((name) => name !== 'cfs')
         }
 
