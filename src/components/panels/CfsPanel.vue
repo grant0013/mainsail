@@ -20,6 +20,21 @@
                 </v-btn>
             </template>
             <v-card-text>
+                <v-alert v-if="calibPick" outlined color="primary" dense class="mb-3">
+                    <div class="subtitle-2 mb-1">{{ calibPickTitle }}</div>
+                    <div class="caption text--secondary mb-2">{{ calibPickHint }}</div>
+                    <div class="d-flex flex-wrap" style="gap: 6px">
+                        <v-btn
+                            v-for="v in calibPick.values"
+                            :key="v"
+                            small
+                            color="primary"
+                            @click="sendGcode(`CALIB_SET KIND=${calibPick.kind} SLOT=${calibPick.slot} VALUE=${v}`)">
+                            {{ calibPick.kind === 'flow' ? Math.round(v * 100) : v.toFixed(1) + ' mm' }}
+                        </v-btn>
+                        <v-btn small text @click="sendGcode('CALIB_SKIP')">Keep the old value</v-btn>
+                    </div>
+                </v-alert>
                 <v-row dense>
                     <v-col v-for="item in slots" :key="item.id" :cols="external ? 12 : 6" :sm="external ? 6 : 3">
                         <v-card
@@ -342,7 +357,47 @@ export default class CfsPanel extends Mixins(BaseMixin) {
         return this.$store.state.printer?.['filament_switch_sensor filament_sensor']?.filament_detected
     }
 
+    get calibPick(): { kind: string; slot: string; values: number[] } | null {
+        const pending = this.$store.state.printer?.hark_calib?.pending
+        return pending && pending.values?.length && !this.printing ? pending : null
+    }
+
+    get calibPickTitle(): string {
+        const p = this.calibPick
+        if (!p) return ''
+        const what = p.slot === 'E' ? 'the external spool' : `slot ${p.slot}`
+        return p.kind === 'flow' ? `Pick the best flow pad for ${what}` : `Pick the best retraction for ${what}`
+    }
+
+    get calibPickHint(): string {
+        return this.calibPick?.kind === 'flow'
+            ? 'The lowest number where the top lines have closed up, before ridges.'
+            : 'The shortest retraction with no strings between the pillars.'
+    }
+
+    get calibActions(): { label: string; color?: string; question: string; gcode: string }[] {
+        const slot = this.editingSlot
+        if (!slot || !slot.loaded || !this.$store.state.printer?.hark_calib) return []
+        const what = slot.id === 'E' ? 'the external spool' : `slot ${slot.id}`
+        return [
+            {
+                label: 'Flow test',
+                question: `Print flow-ratio pads for ${what}? About 20 minutes; you then pick the best pad. Is the bed clear?`,
+                gcode: `CALIBRATE_FLOW SLOT=${slot.id}`,
+            },
+            {
+                label: 'Retraction test',
+                question: `Print a retraction test for ${what}? About 25 minutes; you then pick the best pair. Is the bed clear?`,
+                gcode: `CALIBRATE_RETRACTION SLOT=${slot.id}`,
+            },
+        ]
+    }
+
     get slotActions(): { label: string; color?: string; question: string; gcode: string }[] {
+        return [...this.slotPrinterActions, ...this.calibActions]
+    }
+
+    get slotPrinterActions(): { label: string; color?: string; question: string; gcode: string }[] {
         const slot = this.editingSlot
         if (!slot) return []
         const id = slot.id
